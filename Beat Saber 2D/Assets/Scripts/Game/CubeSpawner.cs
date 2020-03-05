@@ -11,29 +11,33 @@ public class CubeSpawner : MonoBehaviour
     [SerializeField] private GameObject cubePrefab;
     [SerializeField] private float delay = 1f;
 
+    private bool spawnAll = false;
+
     private void Start() {
     	if(game.Playing)
     		StartCoroutine(Spawn());
     }
 
     private IEnumerator Spawn() {
-        // for(int y = 0; y <= 2; y++) {
-        //     Vector3 position = new Vector3(transform.position.x + xOffset * 1, transform.position.y + yOffset * y, transform.position.z);
-        //     Instantiate(cubePrefab, position, Quaternion.identity);
-        //     position = new Vector3(transform.position.x + xOffset * 3, transform.position.y + yOffset * y, transform.position.z);
-        //     Instantiate(cubePrefab, position, Quaternion.identity);
-        //     position = new Vector3(transform.position.x + xOffset * -1, transform.position.y + yOffset * y, transform.position.z);
-        //     Instantiate(cubePrefab, position, Quaternion.identity);
-        //     position = new Vector3(transform.position.x + xOffset * -3, transform.position.y + yOffset * y, transform.position.z);
-        //     Instantiate(cubePrefab, position, Quaternion.identity);
-        // }
-        int i = 0;
-        while(true) {
-        	i++;
-        	if(i > 11) i = 0;
-        	CreateCube(i);
-	        yield return new WaitForSeconds(delay);
-        }
+    	while(true) {
+			CreateCube(Random.Range(0, 12));
+            yield return new WaitForSeconds(delay);  			
+				
+		  		
+        	if(Input.GetKeyDown(KeyCode.Keypad0)) CreateCube(0);
+    		if(Input.GetKeyDown(KeyCode.Keypad1)) CreateCube(1);
+    		if(Input.GetKeyDown(KeyCode.Keypad2)) CreateCube(2);
+    		if(Input.GetKeyDown(KeyCode.Keypad3)) CreateCube(3);
+    		if(Input.GetKeyDown(KeyCode.Keypad4)) CreateCube(4);
+    		if(Input.GetKeyDown(KeyCode.Keypad5)) CreateCube(5);
+    		if(Input.GetKeyDown(KeyCode.Keypad6)) CreateCube(6);
+    		if(Input.GetKeyDown(KeyCode.Keypad7)) CreateCube(7);
+    		if(Input.GetKeyDown(KeyCode.Keypad8)) CreateCube(8);
+    		if(Input.GetKeyDown(KeyCode.Keypad9)) CreateCube(9);
+    		if(Input.GetKeyDown(KeyCode.Alpha1)) CreateCube(10);
+    		if(Input.GetKeyDown(KeyCode.Alpha2)) CreateCube(11);
+    		yield return 0;
+   		}
     }
 
     private void CreateCube(int index) {
@@ -58,7 +62,10 @@ public class CubeSpawner : MonoBehaviour
     			  position = new Vector3(transform.position.x + xOffset * 3, transform.position.y + yOffset * y, transform.position.z);    			  
     			  break;
     		}
-    		Instantiate(cubePrefab, position, Quaternion.identity);	
+    		GameObject cube = Instantiate(cubePrefab, position, transform.rotation);	
+    		int random = Random.Range(0, 2);
+    		Team team = (random == 0) ? Team.Red : Team.Blue;
+    		cube.GetComponent<Cube>().SetTeam(team);  
     	}
     }
 }
