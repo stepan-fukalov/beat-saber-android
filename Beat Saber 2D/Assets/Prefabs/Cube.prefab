@@ -97,10 +97,10 @@ MonoBehaviour:
   red: {r: 1, g: 0.15566039, b: 0.15566039, a: 1}
   blue: {r: 0.19157171, g: 0.19157171, b: 0.990566, a: 1}
   destroyIn: 2
-  zKickDirection: 100000
-  xAddForce: 500
-  yAddForce: 500
-  minZForce: 0.00005
+  zKickDirection: 300000
+  xAddForce: 5000
+  yAddForce: 5000
+  minZForce: 0.000005
 --- !u!54 &7022875462313992347
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -11,19 +11,30 @@ public class CubeSpawner : MonoBehaviour
     [SerializeField] private GameObject cubePrefab;
     [SerializeField] private float delay = 1f;
 
+    private Equalizer equalizer = null;
     private bool spawnAll = false;
 
     private void Start() {
+        if(Equalizer.Instance == null)
+            Debug.LogError("No equalizer object, try to start from startSettings scene");
+        else
+            equalizer = Equalizer.Instance;
+
     	if(game.Playing)
     		StartCoroutine(Spawn());
     }
 
     private IEnumerator Spawn() {
+        equalizer.StartPlay();
     	while(true) {
-			CreateCube(Random.Range(0, 12));
+			for(int i = 0; i < 3; i++) {
+                for(int j = 0; j < 4; j++) {
+                    if(equalizer.CreateCube(i, j))
+                        CreateCube(i * 4 + j);
+                }
+            }
             yield return new WaitForSeconds(delay);  			
 				
-		  		
         	if(Input.GetKeyDown(KeyCode.Keypad0)) CreateCube(0);
     		if(Input.GetKeyDown(KeyCode.Keypad1)) CreateCube(1);
     		if(Input.GetKeyDown(KeyCode.Keypad2)) CreateCube(2);

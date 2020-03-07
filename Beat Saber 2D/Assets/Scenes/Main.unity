@@ -384,7 +384,7 @@ MonoBehaviour:
   yOffset: 0.27
   cubePrefab: {fileID: 4378784454034451573, guid: 1aa2aaf97cd9190479208a38d76b2a01,
     type: 3}
-  delay: 3
+  delay: 1
 --- !u!4 &121651158
 Transform:
   m_ObjectHideFlags: 0
