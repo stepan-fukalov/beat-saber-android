@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UI;
+using UnityEngine.UI; 
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
@@ -92,5 +92,11 @@ public class UIManager : MonoBehaviour
 		this.startFrom = startFrom;
 		this.length = length;
 		this.minValues = minValues;
+	}
+
+	public void GetManagerValues(out int startFrom, out int length, out float[] minValues) {
+		startFrom = this.startFrom;
+		length = this.length;
+		minValues = this.minValues;
 	}
 }

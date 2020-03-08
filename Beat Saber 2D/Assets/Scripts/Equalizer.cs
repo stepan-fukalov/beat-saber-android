@@ -9,10 +9,10 @@ public class Equalizer : MonoBehaviour
     //A float array that stores the audio samples  
     private float[] samples = new float[64];  
 
-    private float[,] minValueEnableLine = new float[4,4]; 
-    private float[,] currentValuesEnableLine = new float[4, 4];
-    private int[] startSample = new int[4];
-    private int[] sampleLength = new int[4];
+    private float[,] minValueEnableLine = new float[3,4]; 
+    private float[,] currentValuesEnableLine = new float[3, 4];
+    private int[] startSample = new int[3];
+    private int[] sampleLength = new int[3];
 
     private bool playing = false;
 
@@ -31,7 +31,7 @@ public class Equalizer : MonoBehaviour
     {  
         if(playing) {
         aSource.GetSpectrumData(this.samples,0,FFTWindow.BlackmanHarris);   
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 3; i++)
             UpdateEnableValues(i);
         }
     }  
@@ -59,8 +59,6 @@ public class Equalizer : MonoBehaviour
                 value += samples[j];
             }
             values[i] = value / length;
-        }
-        for(int i = 0; i < 4; i++) {
             currentValuesEnableLine[line, i] = values[i];
         }
     } 

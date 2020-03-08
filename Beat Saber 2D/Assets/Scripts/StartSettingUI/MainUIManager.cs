@@ -1,8 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using UnityEngine.UI; 
 using UnityEngine;
 
 public class MainUIManager : MonoBehaviour
@@ -11,18 +10,40 @@ public class MainUIManager : MonoBehaviour
     [SerializeField] private Text[] startFroms;
     [SerializeField] private Text[] lengths;
     [SerializeField] private Text[] minValues;
+    private AITester tester;
 
-    public async void ButtonSubmit() {
-    	foreach (UIManager ma in uiManagers) 
+    private void Start() {
+        tester = AITester.Instance;
+    }
+
+    private void Update() {
+        //tester
+        // ButtonRandom();
+        // ButtonSubmit();
+    }
+
+    public void ButtonSubmit() {
+        int[] TstartFroms = new int[3];
+        int[] Tlengths = new int[3];
+        float[,] TminValues = new float[3,4];
+    	for(int i = 0; i < uiManagers.Length; i++) 
     	{
-    		ma.SetEqualizerValues();
-    	}
-    	var asyncLoad = SceneManager.LoadSceneAsync("Main");
-        while (!asyncLoad.isDone) await Task.Delay(15);
+    		uiManagers[i].SetEqualizerValues();
+            int TstartFrom, Tlength;
+            float[] TminValue = new float[4];
+            uiManagers[i].GetManagerValues(out TstartFrom, out Tlength, out TminValue);
+            TstartFroms[i] = TstartFrom;
+            Tlengths[i] = Tlength;
+            for(int j = 0; j < 4; j++) {
+                TminValues[i, j] = TminValue[j];
+    	   }
+        }
+        tester.SaveSetting(TstartFroms, Tlengths, TminValues);
+    	SceneManager.LoadScene("Main");
     }
 
     public void ButtonRandom() {
-    	for(int i = 0; i < 4; i++) {
+    	for(int i = 0; i < 3; i++) {
     		int randomStartFrom = Random.Range(0, 64);
     		int length = Random.Range(0, 63 - randomStartFrom);
     		float[] minValue = new float[4];
