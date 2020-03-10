@@ -11,6 +11,7 @@ public class MainUIManager : MonoBehaviour
     [SerializeField] private Text[] lengths;
     [SerializeField] private Text[] minValues;
     private AITester tester;
+    private int fileNameNumber = 0;
 
     private void Start() {
         tester = AITester.Instance;
@@ -58,5 +59,28 @@ public class MainUIManager : MonoBehaviour
 			startFroms[i].text = randomStartFrom.ToString();
 			lengths[i].text = length.ToString();
     	}
+    }
+
+    public void ButtonLoadSetting() {
+        int[] TstartFroms = new int[3];
+        int[] Tlengths = new int[3];
+        float[] TminValues = new float[12];
+        tester.DeserializeSetting(out TstartFroms, out Tlengths, out TminValues, fileNameNumber);
+        for(int i = 0; i < 3; i++) {
+            for(int j = 4*i; j < 4*(i+1); j++) {
+                minValues[j].text = TminValues[j].ToString();
+            }
+            startFroms[i].text = TstartFroms[i].ToString();
+            lengths[i].text = Tlengths[i].ToString();
+        }
+    }
+
+    public void InputFileNumber(string value) {
+        if(value != "") {
+            int temp = 0;
+            if(int.TryParse(value, out temp)) {
+                fileNameNumber = temp; 
+            }
+        }
     }
 }
