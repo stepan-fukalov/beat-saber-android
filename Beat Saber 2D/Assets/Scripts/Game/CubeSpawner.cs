@@ -12,14 +12,14 @@ public class CubeSpawner : MonoBehaviour
     [SerializeField] private float delay = 1f;
 
     private Equalizer equalizer = null;
-    private AITester tester = null; 
+    //private AITester tester = null; 
 
     private void Start() {
         if(Equalizer.Instance == null)
             Debug.LogError("No equalizer object, try to start from startSettings scene");
         else {
             equalizer = Equalizer.Instance;
-            tester = AITester.Instance;
+            // tester = AITester.Instance;
         }
 
     	if(game.Playing)
@@ -29,15 +29,12 @@ public class CubeSpawner : MonoBehaviour
     private IEnumerator Spawn() {
         equalizer.StartPlay();
     	while(true) {
-            bool[] createdCubes = new bool[12];
 			for(int i = 0; i < 3; i++) {
                 for(int j = 0; j < 4; j++) {
                     if(equalizer.CreateCube(i, j)) 
                         CreateCube(i * 4 + j);
-                    createdCubes[i * 4 + j] = equalizer.CreateCube(i, j);
                 }
             }
-            tester.SaveCubeSpawner(createdCubes, delay);
             yield return new WaitForSeconds(delay);  			
 				
         	if(Input.GetKeyDown(KeyCode.Keypad0)) CreateCube(0);
