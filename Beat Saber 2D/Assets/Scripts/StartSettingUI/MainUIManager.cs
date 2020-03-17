@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using System.IO;
 using UnityEngine.UI; 
 using UnityEngine;
@@ -51,7 +52,11 @@ public class MainUIManager : MonoBehaviour
     }
 
     private void GetMusicFileNames(out List<string> fileNames) {
+#if UNITY_ANDROID && !UNITY_EDITOR 
+        directoryPath = Path.Combine(Application.persistentDataPath, "Music/");
+#else 
         directoryPath = Path.Combine(Application.persistentDataPath, "Music\\");
+#endif
         fileNames = new List<string>();
         if(!Directory.Exists(directoryPath))
         {
@@ -80,10 +85,15 @@ public class MainUIManager : MonoBehaviour
         GetMusicFileNames(out fileNames);
         RectTransform containerRect = container.GetComponent<RectTransform>();
         float prefabHeight = musicNamePrefab.GetComponent<RectTransform>().rect.height;
-        float currentPosY = 0;
+        float currentPosY = 0f;
 
         foreach(string name in fileNames) {
+
+#if UNITY_ANDROID && !UNITY_EDITOR 
+            string[] str = name.Split('/');
+#else 
             string[] str = name.Split('\\');
+#endif
             string Tname = str[str.Length - 1];
             containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, containerRect.sizeDelta.y + prefabHeight);
             GameObject obj = Instantiate(musicNamePrefab, container.transform);
@@ -96,16 +106,49 @@ public class MainUIManager : MonoBehaviour
 
     public void SetPlayFile(string fileToPlay) {
         this.fileToPlay = directoryPath + fileToPlay;
+        Debug.Log("File to play " + fileToPlay + "This file to play " + this.fileToPlay);
         StartCoroutine(LoadAudio());
     }
 
     private IEnumerator LoadAudio() {
-        WWW request = new WWW(fileToPlay);
+        WWW request = new WWW("https://ruru.hotmo.org/get/music/20191214/muzlome_Roddy_Ricch_-_The_Box_67608640.mp3");
+        Debug.Log("Request");
         yield return request;
-
+        Debug.Log("Yield return request");
         music = request.GetAudioClip();
+        Debug.Log("GetAudioClip");
         equalizer.SetAudioClip(music);
     }
+
+    public void DisablePressedButtonColor() {
+        var buttons = container.GetComponentsInChildren<Image>();
+        foreach (var button in buttons) 
+        {
+            button.color = Color.white;
+        }
+    }
+
+    public void TimeInput(string value) {
+        int temp = 0;
+         if(value != "") {
+             if(int.TryParse(value, out temp)) {
+                 tester.TimeCounter = temp;
+             }   
+         }
+         Debug.Log(temp);
+    }
+
+    public void MagicNumberInput(string value) {
+        int temp = 0;
+        if(value != "") {
+            if(int.TryParse(value, out temp)) {
+                tester.AverageCubeCount = temp;
+            }   
+        }
+        Debug.Log(temp);
+    }
+
+
 
     // private void Update() {
     //     //tester

@@ -5,14 +5,15 @@ using UnityEngine;
 
 public class SelectButton : MonoBehaviour
 {
-	private MainUIManager UImanager;
+	private MainUIManager MainManager;
 
 	private void Start() {
-		UImanager = FindObjectOfType<MainUIManager>();
+		MainManager = FindObjectOfType<MainUIManager>();
 	}
 
     public void TaskOnClick() {
+    	MainManager.SetPlayFile(GetComponentInChildren<Text>().text);
+    	MainManager.DisablePressedButtonColor();
     	GetComponent<Image>().color = Color.yellow;
-    	UImanager.SetPlayFile(GetComponentInChildren<Text>().text); 
     }
 }

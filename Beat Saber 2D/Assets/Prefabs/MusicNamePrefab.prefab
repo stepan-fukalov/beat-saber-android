@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 114857266494027954}
   - component: {fileID: 4973925503629213813}
   - component: {fileID: 9035163880415164986}
+  - component: {fileID: 2622209738697001689}
   m_Layer: 5
   m_Name: MusicNamePrefab
   m_TagString: Untagged
@@ -154,6 +155,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe9ba478222aae4ebc50fbe4d65fae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2622209738697001689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5052371833061201680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -900027084, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7764573737594663533
 GameObject:
   m_ObjectHideFlags: 0

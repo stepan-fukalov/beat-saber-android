@@ -5,7 +5,10 @@ public class Equalizer : MonoBehaviour
 {  
     public static Equalizer Instance;
     //An AudioSource object so the music can be played  
-    public AudioSource ASource { get; private set; }  
+    public AudioSource ASource { get { return audioToAnalize; } }  
+    [SerializeField] private AudioSource audioToAnalize;
+    [SerializeField] private AudioSource audioToPlay;
+    [SerializeField] private float waitBeforeMusicPlay;
     //A float array that stores the audio samples  
     [SerializeField] private float[] samples = new float[64];  
     [SerializeField] private float[] midSampleValues = new float[64];
@@ -22,24 +25,17 @@ public class Equalizer : MonoBehaviour
 
     private void Awake(){
         if(Instance == null) {
-            DontDestroyOnLoad(this.gameObject);
             Instance = this;
+            DontDestroyOnLoad(this.gameObject);
         } 
-    }
-
-    private void Start() {       
-        ASource = GetComponent<AudioSource>();
     }
 
     private void Update ()  
     {  
         if(playing) {
-            ASource.GetSpectrumData(this.samples,0,FFTWindow.BlackmanHarris);   
+            ASource.GetSpectrumData(this.samples,0,FFTWindow.BlackmanHarris);
             UpdateMinValues();
-            UpdateCurrentValues();
-        // for(int i = 0; i < 3; i++) {
-        //     for(int j = 0; j < 4; j++)
-        //     currentValuesEnableLine[i, j] = minValueEnableLine[i, j];
+            UpdateCurrentValues();                
         } 
     }     
 
@@ -68,7 +64,6 @@ public class Equalizer : MonoBehaviour
                 minValueEnableLine[i, j] = Tvalue / TsampleLength;
             }
         }
-               
     }
 
     private void UpdateCurrentValues() {
@@ -115,8 +110,21 @@ public class Equalizer : MonoBehaviour
         playing = false;
     }
 
+    public void StartPlayFromCubeSpawner() {
+        StartCoroutine(WaitMusic());
+    }
+
+    private IEnumerator WaitMusic() {
+        playing = true;
+        ASource.Play();
+        yield return new WaitForSeconds(waitBeforeMusicPlay);
+        audioToPlay.clip = ASource.clip;
+        audioToPlay.Play();
+    }
+
     public void SetAudioClip(AudioClip audioClip) {
         ASource.clip = audioClip;
+        Debug.Log("SetAudioClip");
     }
 
     // public void SetSamplesToLines(int line, int startSample, int sampleLength, float[] minValues) {

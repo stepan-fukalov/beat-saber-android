@@ -384,7 +384,7 @@ MonoBehaviour:
   yOffset: 0.27
   cubePrefab: {fileID: 4378784454034451573, guid: 1aa2aaf97cd9190479208a38d76b2a01,
     type: 3}
-  delay: 0.1
+  delay: 0.8
 --- !u!4 &121651158
 Transform:
   m_ObjectHideFlags: 0
@@ -678,7 +678,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 4f0cfd2362e53644788e2b4fb8458651, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.2
+  m_Volume: 0.057
   m_Pitch: 1
   Loop: 0
   Mute: 0

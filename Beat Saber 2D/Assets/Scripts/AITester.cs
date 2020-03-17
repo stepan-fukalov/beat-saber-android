@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
 using System.IO;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class AITester : MonoBehaviour
@@ -17,79 +19,112 @@ public class AITester : MonoBehaviour
 	// private string directoryPath;
 	// private int loadSettingNumber;
 
+    [SerializeField] private Text OKProcess;
 	[SerializeField] private float[] min = new float[64];
     [SerializeField] private float[] max = new float[64];
-    [SerializeField] private float timeCounter = 10f;
-    private float timeCounterCounter;
+    [SerializeField] private int timeCounter;
+    // private float timeCounterCounter;
     [SerializeField] private float analizeTime = 5f;
     private float analizeTimeCounter;
     [SerializeField] private float spawnDelay = 1f; // should be equaled delay in cubeSpawner
     private float spawnDelayCounter;
     [SerializeField] private float rate = 0.23f;
+    private float additiveRate;
+    [SerializeField] private int averageCubeCount = 4;
+
 	private float[] midSampleValues = new float[64];
 	private float[] samples = new float[64];
 
 	private Equalizer equalizer;
-	private int cubeNumber;
-	private int spawnNumber;
-	public AudioSource ASource { private get; set; }
+	private int cubeCount;
+	private int spawnCount;
+	public bool Analizing { get; private set; }
+	public int TimeCounter { set { timeCounter = value; }}
+	public int AverageCubeCount {set { averageCubeCount = value; }}
 
 	private void Awake() {
 		if(Instance == null) {
 			Instance = this;
 			DontDestroyOnLoad(this.gameObject);
 		}
-		ASource = GetComponent<AudioSource>();
 	}
 
 	private void Start() {
 		equalizer = Equalizer.Instance;
-		timeCounterCounter = timeCounter;
+		// timeCounterCounter = timeCounter;
 		analizeTimeCounter = analizeTime;
 		spawnDelayCounter = spawnDelay;
+		additiveRate = rate;
+		Analizing = true;
 	}
 
 	private void Update() {
 
-		if(ASource.isPlaying)
-			if(timeCounterCounter > 0f)
-				timeCounter -= Time.deltaTime;
-			else {
-				ASource.GetSpectrumData(this.samples,0,FFTWindow.BlackmanHarris);
-				SetMinMaxSampleValues();
-				analizeTime -= Time.deltaTime;
-				if(analizeTimeCounter < 0)
-					StopAnalizeMusic();
-			}
+		if(equalizer.ASource.isPlaying && Analizing) {
+			equalizer.ASource.GetSpectrumData(this.samples,0,FFTWindow.BlackmanHarris);
+			SetMinMaxSampleValues();
+			analizeTimeCounter -= Time.deltaTime;
+			if(analizeTimeCounter < 0f)
+				StopAnalizeMusic();
+		}
 	}
 
 	public void AnalizeMusic() {
-		ASource.clip = equalizer.ASource.clip;
+		OKProcess.text = String.Format("AnalizeMusic");
 		for(int i = 0; i < samples.Length; i++) {
             min[i] = 1f;
         }
-        ASource.Play();
+        equalizer.StartPlay();
+        equalizer.ASource.time = (float) timeCounter;
+        OKProcess.gameObject.SetActive(true);
 	}
 
 	private void StopAnalizeMusic() {
-		ASource.Stop();
-		equalizer.SetMidValues(midSampleValues);
+		OKProcess.text = String.Format("StopAnalizeMusic");
+		equalizer.StopPlay();
+		analizeTimeCounter = analizeTime;
+		// timeCounterCounter = timeCounter;		
+		AnalizeCubeSpawns();
+	}
+
+	private void AnalizeCubeSpawns() {
+		cubeCount = cubeCount / spawnCount;
+		additiveRate = rate / 2;
+		if(cubeCount == averageCubeCount || additiveRate < 0.02)
+			LoadMainScene();
+		else {
+			OKProcess.text = String.Format("AnalizeCubeSpawns : " + cubeCount + " " + additiveRate + " " + rate);
+			if(cubeCount < averageCubeCount)
+				rate -= additiveRate;
+			else
+				rate += additiveRate;
+			cubeCount = 0;
+			spawnCount = 0;
+			AnalizeMusic();
+		} 
+	}
+
+	private void LoadMainScene() {
+		equalizer.StopPlay();				
+		Analizing = false;
 		SceneManager.LoadScene("Main");
 	}
 
 	private void SetMinMaxSampleValues() {
 			for(int i = 0; i < samples.Length; i++) {
-	        if(samples[i] < min[i] && samples[i] != 0f) min[i] = samples[i];
-	        else if(samples[i] > max[i]) max[i] = samples[i];
-	        midSampleValues[i] = min[i] + (max[i] - min[i]) * rate;
+		        if(samples[i] < min[i] && samples[i] != 0f) min[i] = samples[i];
+		        else if(samples[i] > max[i]) max[i] = samples[i];
+		        midSampleValues[i] = min[i] + (max[i] - min[i]) * rate;
 		}
 		if(spawnDelayCounter > 0) spawnDelayCounter -= Time.deltaTime;
-		else 
+		else {
+			equalizer.SetMidValues(midSampleValues);
 			TestCubeAndSpawnNumber();
+		}
     }
 
     private void TestCubeAndSpawnNumber() {
-    	spawnNumber++;
+    	spawnCount++;
     	int createCount = 0;
     	for(int i = 0; i < 3; i++) {
     		for(int j = 0; j < 4; j++) {
@@ -98,8 +133,9 @@ public class AITester : MonoBehaviour
     			}
     		}
     	}
-    	cubeNumber += createCount;
+    	cubeCount += createCount;
     	spawnDelayCounter = spawnDelay; 
+    	Debug.Log(cubeCount + " " + spawnCount);
     }
 
 	// private void Start() {
