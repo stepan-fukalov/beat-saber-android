@@ -19,7 +19,6 @@ public class AITester : MonoBehaviour
 	// private string directoryPath;
 	// private int loadSettingNumber;
 
-    [SerializeField] private Text OKProcess;
 	[SerializeField] private float[] min = new float[64];
     [SerializeField] private float[] max = new float[64];
     [SerializeField] private int timeCounter;
@@ -40,7 +39,7 @@ public class AITester : MonoBehaviour
 	private int spawnCount;
 	public bool Analizing { get; private set; }
 	public int TimeCounter { set { timeCounter = value; }}
-	public int AverageCubeCount {set { averageCubeCount = value; }}
+	public int AverageCubeCount {set { averageCubeCount = value; } get {return averageCubeCount; }}
 
 	private void Awake() {
 		if(Instance == null) {
@@ -70,17 +69,14 @@ public class AITester : MonoBehaviour
 	}
 
 	public void AnalizeMusic() {
-		OKProcess.text = String.Format("AnalizeMusic");
 		for(int i = 0; i < samples.Length; i++) {
             min[i] = 1f;
         }
         equalizer.StartPlay();
         equalizer.ASource.time = (float) timeCounter;
-        OKProcess.gameObject.SetActive(true);
 	}
 
 	private void StopAnalizeMusic() {
-		OKProcess.text = String.Format("StopAnalizeMusic");
 		equalizer.StopPlay();
 		analizeTimeCounter = analizeTime;
 		// timeCounterCounter = timeCounter;		
@@ -93,7 +89,6 @@ public class AITester : MonoBehaviour
 		if(cubeCount == averageCubeCount || additiveRate < 0.02)
 			LoadMainScene();
 		else {
-			OKProcess.text = String.Format("AnalizeCubeSpawns : " + cubeCount + " " + additiveRate + " " + rate);
 			if(cubeCount < averageCubeCount)
 				rate -= additiveRate;
 			else
@@ -136,6 +131,10 @@ public class AITester : MonoBehaviour
     	cubeCount += createCount;
     	spawnDelayCounter = spawnDelay; 
     	Debug.Log(cubeCount + " " + spawnCount);
+    }
+
+    public void ResetVariables() {
+    	Analizing = false;
     }
 
 	// private void Start() {

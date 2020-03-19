@@ -9,10 +9,12 @@ public class Cube : MonoBehaviour
     [SerializeField] private Color blue = Color.blue;
     [SerializeField] private float destroyIn = 2f, zKickDirection = 0.2f;
     [SerializeField] private float xAddForce = 0.2f, yAddForce = 0.2f, minZForce = 5f;
+    public GameObject debug;
 
     private Rigidbody rb;
     private bool kicked = false;
     public Team CubeTeam { get; private set; }
+    public int Index;
 
     public Vector3 RbVelocity {get {return rb.velocity; } }
 
@@ -46,10 +48,6 @@ public class Cube : MonoBehaviour
     	rb.AddForce(direction, ForceMode.Impulse);
         rb.AddTorque(direction, ForceMode.Impulse);
     	Destroy(gameObject, destroyIn);
-    }
-
-    public void WrongColor() {
-
     }
 
     public void SetTeam(Team team) {

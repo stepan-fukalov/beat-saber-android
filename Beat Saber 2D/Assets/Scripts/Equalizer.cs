@@ -36,7 +36,7 @@ public class Equalizer : MonoBehaviour
             ASource.GetSpectrumData(this.samples,0,FFTWindow.BlackmanHarris);
             UpdateMinValues();
             UpdateCurrentValues();                
-        } 
+        }
     }     
 
     private void UpdateMinValues() {
@@ -111,19 +111,28 @@ public class Equalizer : MonoBehaviour
     }
 
     public void StartPlayFromCubeSpawner() {
+        audioToPlay.Stop();
         StartCoroutine(WaitMusic());
+    }
+
+    public void StopPlayFromGame() {
+        playing = false;
+        audioToPlay.Stop();
+        ASource.Stop();
     }
 
     private IEnumerator WaitMusic() {
         playing = true;
         ASource.Play();
+        ASource.time = 0;
         yield return new WaitForSeconds(waitBeforeMusicPlay);
-        audioToPlay.clip = ASource.clip;
         audioToPlay.Play();
     }
 
     public void SetAudioClip(AudioClip audioClip) {
         ASource.clip = audioClip;
+        audioToPlay.clip = ASource.clip;
+        audioToPlay.Play();
         Debug.Log("SetAudioClip");
     }
 
