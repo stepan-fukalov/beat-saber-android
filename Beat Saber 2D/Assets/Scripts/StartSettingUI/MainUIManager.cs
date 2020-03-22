@@ -8,23 +8,35 @@ using UnityEngine;
 
 public class MainUIManager : MonoBehaviour
 {
+    public static MainUIManager Instance = null;
+
     [SerializeField] private Transform container;
     [SerializeField] private GameObject musicNamePrefab;
     [SerializeField] private GameObject loadingScreen;
+    [SerializeField] private BeginGameScreen testerAnalizingScreen;
 
     [SerializeField] private Equalizer equalizer;
+    [SerializeField] private SaveAndLoadLevel saveAndLoadLevel;
     private AudioClip music;
 
     private AITester tester;
     private string urlOfAudio;
 
+    private void Awake() {
+        if(Instance == null)
+            Instance = this;
+    }
+
     private void Start() {
         tester = AITester.Instance;
+        saveAndLoadLevel = SaveAndLoadLevel.Instance;
     }
 
     public void ButtonSubmit() {
         if(!String.IsNullOrEmpty(urlOfAudio)) {
             tester.AnalizeMusic();
+            testerAnalizingScreen.Display(tester.AverageCubeCount);
+            saveAndLoadLevel.HidePlaySavedLevelButton();
         }
     }
 
@@ -48,14 +60,17 @@ public class MainUIManager : MonoBehaviour
 
     private IEnumerator LoadAudio() {
         using (WWW request = new WWW(urlOfAudio)) {
+            saveAndLoadLevel.HidePlaySavedLevelButton();
             loadingScreen.SetActive(true);
             yield return request;
             loadingScreen.SetActive(false);    
+            saveAndLoadLevel.DisplayPlaySavedLevelButton();
             if(!String.IsNullOrEmpty(request.error)) {
                 NotificationManager.Instance.CreateErrorNotification("Invalid URL");
                 urlOfAudio = "";
             }
             else {
+                saveAndLoadLevel.AudioName = urlOfAudio;
                 music = request.GetAudioClip();            
                 equalizer.SetAudioClip(music);    
             }
@@ -65,6 +80,7 @@ public class MainUIManager : MonoBehaviour
    private IEnumerator SiteRequest(string value) {
         using (WWW request = new WWW(value)) {
             loadingScreen.SetActive(true);
+            saveAndLoadLevel.HidePlaySavedLevelButton();
             yield return request;    
             if(!String.IsNullOrEmpty(request.error)) {
                 NotificationManager.Instance.CreateErrorNotification("Invalid site link");
@@ -73,6 +89,7 @@ public class MainUIManager : MonoBehaviour
                 SeekAudioFiles(request.text);
             }
             loadingScreen.SetActive(false);
+            saveAndLoadLevel.DisplayPlaySavedLevelButton();
         } 
    }
 

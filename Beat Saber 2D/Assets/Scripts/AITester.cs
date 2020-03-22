@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using SimpleJSON;
-using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -30,6 +28,7 @@ public class AITester : MonoBehaviour
     [SerializeField] private float rate = 0.23f;
     private float additiveRate;
     [SerializeField] private int averageCubeCount = 4;
+    [SerializeField] private BeginGameScreen loadingScreen;
 
 	private float[] midSampleValues = new float[64];
 	private float[] samples = new float[64];
@@ -38,8 +37,9 @@ public class AITester : MonoBehaviour
 	private int cubeCount;
 	private int spawnCount;
 	public bool Analizing { get; private set; }
-	public int TimeCounter { set { timeCounter = value; }}
-	public int AverageCubeCount {set { averageCubeCount = value; } get {return averageCubeCount; }}
+	public int TimeCounter { set { timeCounter = value; } get { return timeCounter; }}
+	public int AverageCubeCount {set { averageCubeCount = value; } get { return averageCubeCount; }}
+	public float Rate { set { rate = value; } get { return rate; }}
 
 	private void Awake() {
 		if(Instance == null) {
@@ -86,6 +86,7 @@ public class AITester : MonoBehaviour
 	private void AnalizeCubeSpawns() {
 		cubeCount = cubeCount / spawnCount;
 		additiveRate = rate / 2;
+		loadingScreen.UpdateCubeDisplay(cubeCount);
 		if(cubeCount == averageCubeCount || additiveRate < 0.02)
 			LoadMainScene();
 		else {
@@ -102,7 +103,12 @@ public class AITester : MonoBehaviour
 	private void LoadMainScene() {
 		equalizer.StopPlay();				
 		Analizing = false;
-		SceneManager.LoadScene("Main");
+		StartCoroutine(WaitToLoadScene());
+	}
+
+	private IEnumerator WaitToLoadScene() {
+		yield return new WaitForSeconds(1f);
+		SceneManager.LoadScene("Main");		
 	}
 
 	private void SetMinMaxSampleValues() {
@@ -133,9 +139,9 @@ public class AITester : MonoBehaviour
     	Debug.Log(cubeCount + " " + spawnCount);
     }
 
-    public void ResetVariables() {
-    	Analizing = false;
-    }
+    // public void ResetVariables() {
+    // 	Analizing = false;
+    // }
 
 	// private void Start() {
 	// 	directoryPath = Path.Combine(Application.persistentDataPath, "JSON Save data");

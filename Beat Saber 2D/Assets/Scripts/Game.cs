@@ -9,26 +9,33 @@ public class Game : MonoBehaviour
 	private bool playing = true;
 	private Equalizer equalizer = null;
 	private AITester tester = null;
+	private SaveAndLoadLevel saveAndLoadLevel;
 
 	private void Awake() {
 		equalizer = Equalizer.Instance;
 		tester = AITester.Instance;
+		saveAndLoadLevel = SaveAndLoadLevel.Instance;
 	}
 
 	private void Start() {
 		playing = true;
+		saveAndLoadLevel.HidePlaySavedLevelButton();
+
 	}
 
 	private void Update() {
-		if(Input.GetKeyDown(KeyCode.Escape)) {			
-    		SceneManager.LoadScene("StartSetting");
-
+		if(Input.GetKeyDown(KeyCode.Escape)) {
+			saveAndLoadLevel.Display(load: false);
+			Time.timeScale = 0f;
+			equalizer.StopPlayingAudio();			
 		}
 	}
 
-	private void OnDestroy() {
-		playing = false;
-		equalizer.StopPlayFromGame();
-		tester.ResetVariables();
+	public void LoadSettingsScene() {
+		Destroy(equalizer.gameObject);
+    	Destroy(tester.gameObject);
+    	Destroy(saveAndLoadLevel.gameObject);
+    	Time.timeScale = 1f;
+		SceneManager.LoadScene("StartSetting");
 	}
 }

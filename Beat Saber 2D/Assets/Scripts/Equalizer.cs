@@ -115,11 +115,15 @@ public class Equalizer : MonoBehaviour
         StartCoroutine(WaitMusic());
     }
 
-    public void StopPlayFromGame() {
-        playing = false;
-        audioToPlay.Stop();
-        ASource.Stop();
-    }
+    // public void StopPlayFromGame() {
+    //     playing = false;
+    //     ASource.Stop();
+    //     audioToPlay.Stop();
+    //     ASource.time = 0;
+    //     audioToPlay.time = 0;
+    //     ASource.clip = null;
+    //     audioToPlay.clip = null;
+    // }
 
     private IEnumerator WaitMusic() {
         playing = true;
@@ -134,6 +138,10 @@ public class Equalizer : MonoBehaviour
         audioToPlay.clip = ASource.clip;
         audioToPlay.Play();
         Debug.Log("SetAudioClip");
+    }
+
+    public void StopPlayingAudio() {
+        audioToPlay.Stop();
     }
 
     // public void SetSamplesToLines(int line, int startSample, int sampleLength, float[] minValues) {
