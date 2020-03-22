@@ -1,62 +1,154 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+using UnityEngine.Networking;
+using System.IO;
 using UnityEngine.UI; 
 using UnityEngine;
 
 public class MainUIManager : MonoBehaviour
 {
-    [SerializeField] private UIManager[] uiManagers;
-    [SerializeField] private Text[] startFroms;
-    [SerializeField] private Text[] lengths;
-    [SerializeField] private Text[] minValues;
+    public static MainUIManager Instance = null;
+
+    [SerializeField] private Transform container;
+    [SerializeField] private GameObject musicNamePrefab;
+    [SerializeField] private GameObject loadingScreen;
+    [SerializeField] private BeginGameScreen testerAnalizingScreen;
+
+    [SerializeField] private Equalizer equalizer;
+    [SerializeField] private SaveAndLoadLevel saveAndLoadLevel;
+    private AudioClip music;
+
     private AITester tester;
+    private string urlOfAudio;
+
+    private void Awake() {
+        if(Instance == null)
+            Instance = this;
+    }
 
     private void Start() {
         tester = AITester.Instance;
-    }
-
-    private void Update() {
-        //tester
-        // ButtonRandom();
-        // ButtonSubmit();
+        saveAndLoadLevel = SaveAndLoadLevel.Instance;
     }
 
     public void ButtonSubmit() {
-        int[] TstartFroms = new int[3];
-        int[] Tlengths = new int[3];
-        float[,] TminValues = new float[3,4];
-    	for(int i = 0; i < uiManagers.Length; i++) 
-    	{
-    		uiManagers[i].SetEqualizerValues();
-            int TstartFrom, Tlength;
-            float[] TminValue = new float[4];
-            uiManagers[i].GetManagerValues(out TstartFrom, out Tlength, out TminValue);
-            TstartFroms[i] = TstartFrom;
-            Tlengths[i] = Tlength;
-            for(int j = 0; j < 4; j++) {
-                TminValues[i, j] = TminValue[j];
-    	   }
+        if(!String.IsNullOrEmpty(urlOfAudio)) {
+            tester.AnalizeMusic();
+            testerAnalizingScreen.Display(tester.AverageCubeCount);
+            saveAndLoadLevel.HidePlaySavedLevelButton();
         }
-        tester.SaveSetting(TstartFroms, Tlengths, TminValues);
-    	SceneManager.LoadScene("Main");
     }
 
-    public void ButtonRandom() {
-    	for(int i = 0; i < 3; i++) {
-    		int randomStartFrom = Random.Range(0, 64);
-    		int length = Random.Range(0, 63 - randomStartFrom);
-    		float[] minValue = new float[4];
-    		for(int j = 0; j < 4; j++) {
-    			minValue[j] = Random.Range(0, 1f);
-    		}
-    		// Debug.Log(randomStartFrom + " " + length + " " + minValue[0] + " " + minValue[1] + " " + minValue[2] + " " + minValue[3] + " ");
-			uiManagers[i].SetManagerValues(randomStartFrom, length, minValue);
-			for(int j = 4*i; j < 4*(i+1); j++) {
-				minValues[j].text = minValue[j%4].ToString();
-			}
-			startFroms[i].text = randomStartFrom.ToString();
-			lengths[i].text = length.ToString();
-    	}
+    private void ShowMusicURLs(Stack<string> urls) {
+        RectTransform containerRect = container.GetComponent<RectTransform>();
+        float prefabHeight = musicNamePrefab.GetComponent<RectTransform>().rect.height;
+        foreach(SelectButton musicPrefab in container.GetComponentsInChildren<SelectButton>()) {
+            Destroy(musicPrefab.gameObject);
+        }
+        foreach(string name in urls) {
+            GameObject obj = Instantiate(musicNamePrefab, container.transform);
+            containerRect.sizeDelta = new Vector2(containerRect.sizeDelta.x, containerRect.sizeDelta.y + prefabHeight);
+            obj.GetComponent<SelectButton>().SetText(name);
+        } 
+    }
+
+    public void SetPlayFile(string urlOfAudio) {
+        this.urlOfAudio = urlOfAudio;
+        StartCoroutine(LoadAudio());
+    }
+
+    private IEnumerator LoadAudio() {
+        using (WWW request = new WWW(urlOfAudio)) {
+            saveAndLoadLevel.HidePlaySavedLevelButton();
+            loadingScreen.SetActive(true);
+            yield return request;
+            loadingScreen.SetActive(false);    
+            saveAndLoadLevel.DisplayPlaySavedLevelButton();
+            if(!String.IsNullOrEmpty(request.error)) {
+                NotificationManager.Instance.CreateErrorNotification("Invalid URL");
+                urlOfAudio = "";
+            }
+            else {
+                saveAndLoadLevel.AudioName = urlOfAudio;
+                music = request.GetAudioClip();            
+                equalizer.SetAudioClip(music);    
+            }
+        }
+   }
+
+   private IEnumerator SiteRequest(string value) {
+        using (WWW request = new WWW(value)) {
+            loadingScreen.SetActive(true);
+            saveAndLoadLevel.HidePlaySavedLevelButton();
+            yield return request;    
+            if(!String.IsNullOrEmpty(request.error)) {
+                NotificationManager.Instance.CreateErrorNotification("Invalid site link");
+            }
+            else {
+                SeekAudioFiles(request.text);
+            }
+            loadingScreen.SetActive(false);
+            saveAndLoadLevel.DisplayPlaySavedLevelButton();
+        } 
+   }
+
+   private void SeekAudioFiles(string data) {
+
+        int length = data.Length > 100000 ? 100000 : data.Length;
+        Stack<string> audio = new Stack<string>();
+        data = data.Substring(0, length);
+        string str = data;
+        while(str.IndexOf(".mp3\"") != -1) {
+            int mp3 = str.LastIndexOf(".mp3\"");
+            str = str.Substring(0, mp3 + 4);
+            int href = str.LastIndexOf("http");
+            if(href == -1) 
+                break;
+            if(str.Substring(href + 4, 4).Contains("://"))
+                audio.Push(str.Substring(href, mp3 - href + 4));
+            str = str.Substring(0, href);
+        }
+        ShowMusicURLs(audio);
+   }
+
+    public void DisablePressedButtonColor() {
+        var buttons = container.GetComponentsInChildren<Image>();
+        foreach (var button in buttons) 
+        {
+            button.color = Color.white;
+        }
+    }
+
+    public void TimeInput(string value) {
+        int temp = 0;
+         if(value != "") {
+             if(int.TryParse(value, out temp)) {
+                 tester.TimeCounter = temp;
+             }   
+         }
+         Debug.Log(temp);
+    }
+
+    public void MagicNumberInput(string value) {
+        int temp = 0;
+        if(value != "") {
+            if(int.TryParse(value, out temp)) {
+                tester.AverageCubeCount = temp;
+            }   
+        }
+        Debug.Log(temp);
+    }
+
+    public void URLInput(string value) {
+        if(!String.IsNullOrEmpty(value)) {
+            SetPlayFile(value);
+        }
+    }
+
+    public void SiteInput(string value) {
+        if(!String.IsNullOrEmpty(value)) {
+            StartCoroutine(SiteRequest(value));
+        }
     }
 }
