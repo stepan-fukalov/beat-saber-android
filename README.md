@@ -27,4 +27,5 @@
 - Posibility to save the music from the net to a local memory on android to play the music again.
 
 # License
-Licensed under the [MIT License](LICENSE).
+Licensed under the [MIT License](LICENSE.md).
+
