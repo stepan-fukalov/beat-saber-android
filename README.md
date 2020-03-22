@@ -3,15 +3,15 @@
 
 # Screenshots
 <div align="center">
-        <img width="30%" src="Screenshots/1.jpeg" alt="Screenshots" title="Start menu"</img>
+        <img width="30%" src="Screenshots/1.jpg" alt="Screenshots" title="Start menu"</img>
         <img height="0" width="2px">
-        <img width="30%" src="Screenshots/2.jpeg" alt="Screenshots" title="Loading audio"></img>
+        <img width="30%" src="Screenshots/2.jpg" alt="Screenshots" title="Loading audio"></img>
         <img height="0" width="2px">
-        <img width="30%" src="Screenshots/3.jpeg" alt="Screenshots" title="Gameplay"></img>
+        <img width="30%" src="Screenshots/3.jpg" alt="Screenshots" title="Gameplay"></img>
         <img height="0" width="2px">
-        <img width="30%" src="Screenshots/4.jpeg" alt="Screenshots" title="Saving settings"></img>
+        <img width="30%" src="Screenshots/4.jpg" alt="Screenshots" title="Saving settings"></img>
         <img height="0" width="2px">
-        <img width="30%" src="Screenshots/5.jpeg" alt="Screenshots" title="Loading settings"></img>
+        <img width="30%" src="Screenshots/5.jpg" alt="Screenshots" title="Loading settings"></img>
 </div>
 
 # Features
